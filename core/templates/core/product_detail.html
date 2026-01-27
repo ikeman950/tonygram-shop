@@ -1,0 +1,114 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} - TonyGram Trading{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+  <div class="row gx-5 gy-4">
+
+    <!-- Left column - Image -->
+    <div class="col-lg-6">
+      <div class="bg-light rounded overflow-hidden shadow-sm border">
+        {% if product.image %}
+          <img src="{{ product.image.url }}"
+               alt="{{ product.name }}"
+               class="img-fluid w-100"
+               style="object-fit: contain; max-height: 550px;">
+        {% else %}
+          <div class="d-flex align-items-center justify-content-center bg-white" style="height: 450px;">
+            <i class="bi bi-image fs-1 text-muted"></i>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right column - Product info -->
+    <div class="col-lg-6">
+      <h1 class="mb-3 fw-bold">{{ product.name }}</h1>
+
+      <div class="mb-4">
+        <h3 class="text-success d-inline fw-bold">
+          GH₵ {{ product.price|floatformat:"-2"|intcomma }}
+        </h3>
+        {% if product.category %}
+          <span class="badge bg-secondary ms-3 align-middle">
+            {{ product.category.name }}
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Description -->
+      <div class="mb-4">
+        <h5 class="mb-2 fw-semibold">Description</h5>
+        <div class="lead text-muted" style="line-height: 1.7;">
+          {{ product.description|linebreaks }}
+        </div>
+      </div>
+
+      <!-- Quantity & Add to Cart -->
+      <div class="mb-5">
+        <form action="{% url 'cart_add' product.id %}" method="post" class="d-flex flex-wrap align-items-center gap-3">
+          {% csrf_token %}
+
+          <div class="input-group" style="max-width: 180px;">
+            <button type="button" class="btn btn-outline-secondary decrement">-</button>
+            <input type="number" name="quantity" value="1" min="1" max="99" 
+                   class="form-control text-center quantity-input">
+            <button type="button" class="btn btn-outline-secondary increment">+</button>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-lg px-5">
+            <i class="bi bi-cart-plus me-2"></i> Add to Cart
+          </button>
+        </form>
+      </div>
+
+      <!-- Additional info -->
+      <hr class="my-4">
+
+      <div class="row g-3 small text-muted">
+        <div class="col-6">
+          <strong>Added on:</strong> {{ product.created|date:"d M Y" }}
+        </div>
+        <div class="col-6 text-end">
+          <strong>Updated:</strong> {{ product.updated|date:"d M Y" }}
+        </div>
+      </div>
+
+      <!-- Optional: back link -->
+      <div class="mt-4">
+        <a href="{% url 'home' %}" class="text-decoration-none text-muted">
+          ← Back to Shop
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Optional: Simple JavaScript for +/- buttons -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const quantityInput = document.querySelector('.quantity-input');
+    const decrementBtn = document.querySelector('.decrement');
+    const incrementBtn = document.querySelector('.increment');
+
+    if (quantityInput && decrementBtn && incrementBtn) {
+      decrementBtn.addEventListener('click', () => {
+        if (quantityInput.value > 1) {
+          quantityInput.value = parseInt(quantityInput.value) - 1;
+        }
+      });
+
+      incrementBtn.addEventListener('click', () => {
+        if (quantityInput.value < 99) {
+          quantityInput.value = parseInt(quantityInput.value) + 1;
+        }
+      });
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load humanize %}
+
+Subject: Order Confirmation - TonyGram Trading #{{ order.id }}
+
+Dear {{ order.customer_name }},
+
+Thank you for your order!
+
+Order Details:
+Order #: {{ order.id }}
+Placed on: {{ order.created|date:"d M Y, H:i" }}
+
+Items:
+{% for item in order.items.all %}
+  - {{ item.quantity }} x {{ item.product.name }} @ GH₵ {{ item.price|floatformat:"-2"|intcomma }} = GH₵ {{ item.get_cost|floatformat:"-2"|intcomma }}
+{% endfor %}
+
+Total: GH₵ {{ order.get_total_cost|floatformat:"-2"|intcomma }}
+
+Delivery Address:
+{{ order.address }}
+
+Phone: {{ order.phone }}
+
+Notes: {{ order.notes|default:"None" }}
+
+We will contact you soon to confirm delivery.
+
+Best regards,
+TonyGram Trading Team

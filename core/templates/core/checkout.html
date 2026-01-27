@@ -1,0 +1,128 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+
+{% block title %}Checkout - TonyGram Trading{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+  <h1 class="mb-4 fw-bold">Checkout</h1>
+
+  <div class="row g-5">
+    <!-- Cart Summary (left column) -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h4 class="mb-0">Order Summary</h4>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            {% for item in cart %}
+              <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ item.product.name }}</strong><br>
+                  <small class="text-muted">
+                    GH₵ {{ item.price|floatformat:"-2"|intcomma }} × {{ item.quantity }}
+                  </small>
+                </div>
+                <span class="badge bg-primary rounded-pill">
+                  GH₵ {{ item.total_price|floatformat:"-2"|intcomma }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Total:</h5>
+            <h4 class="mb-0 text-success fw-bold">
+              GH₵ {{ cart.get_total_price|floatformat:"-2"|intcomma }}
+            </h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Form (right column) -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-light">
+          <h4 class="mb-0">Delivery Information</h4>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Form fields with better styling -->
+            <div class="mb-3">
+              <label for="{{ form.customer_name.id_for_label }}" class="form-label fw-medium">
+                Full Name <span class="text-danger">*</span>
+              </label>
+              {{ form.customer_name }}
+              {% if form.customer_name.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.customer_name.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.email.id_for_label }}" class="form-label fw-medium">
+                Email Address <span class="text-danger">*</span>
+              </label>
+              {{ form.email }}
+              <div class="form-text text-muted">
+                We'll send your order confirmation and updates here
+              </div>
+              {% if form.email.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.email.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.phone.id_for_label }}" class="form-label fw-medium">
+                Phone Number <span class="text-danger">*</span>
+              </label>
+              {{ form.phone }}
+              {% if form.phone.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.phone.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.address.id_for_label }}" class="form-label fw-medium">
+                Delivery Address <span class="text-danger">*</span>
+              </label>
+              {{ form.address }}
+              {% if form.address.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ form.address.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.notes.id_for_label }}" class="form-label fw-medium">
+                Additional Notes (optional)
+              </label>
+              {{ form.notes }}
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-check-circle me-2"></i> Place Order
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

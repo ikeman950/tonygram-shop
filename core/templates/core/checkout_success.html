@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-5 text-center">
+  <div class="py-5">
+    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+    <h2 class="mt-4 mb-3">Thank You!</h2>
+    <h4 class="text-muted mb-4">Your order has been placed successfully.</h4>
+
+    {% if order %}
+      <p class="lead">Order #{{ order.id }}</p>
+      <p>We will contact you on <strong>{{ order.phone }}</strong> for delivery details.</p>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg mt-3">
+      Continue Shopping
+    </a>
+  </div>
+</div>
+
+{% endblock %}
