@@ -6,6 +6,7 @@ from .models import Product
 class Cart:
     """
     Session-based shopping cart.
+    
     Prices are stored as strings to avoid JSON serialization issues with Decimal.
     """
 
@@ -19,34 +20,41 @@ class Cart:
         if not cart:
             cart = {}
         self.cart = cart
-        
-        
+
     def __iter__(self):
-         product_ids = self.cart.keys()
-         products = Product.objects.filter(id__in=product_ids)  # Remove available=True to include even deleted ones temporarily
+        """
+        Iterate over cart items without modifying stored session data.
+        Returns enhanced item dictionaries with product objects and calculated totals.
+        Handles deleted products gracefully (product may be None).
+        """
+        product_ids = self.cart.keys()
+        # Fetch products (allow deleted ones temporarily so we can show warning)
+        products = Product.objects.filter(id__in=product_ids)
 
-         cart_copy = self.cart.copy()
+        # Work on a copy to prevent any mutation of session data
+        cart_copy = self.cart.copy()
 
+        # Attach product objects where they still exist
         for product in products:
-           pid_str = str(product.id)
-           if pid_str in cart_copy:
-              cart_copy[pid_str]['product'] = product
+            pid_str = str(product.id)
+            if pid_str in cart_copy:
+                cart_copy[pid_str]['product'] = product
 
-       for item in cart_copy.values():
-          price = Decimal(item['price']) if 'price' in item else Decimal('0.00')
-          quantity = item.get('quantity', 0)
-          product = item.get('product')  # May be None if deleted
+        # Yield safe item dictionaries
+        for item in cart_copy.values():
+            price = Decimal(item['price']) if 'price' in item else Decimal('0.00')
+            quantity = item.get('quantity', 0)
+            product = item.get('product')  # Can be None if deleted
 
-          total_price = price * quantity
+            total_price = price * quantity
 
-          yield {
-             'product': product,  # Can be None
-             'price': price,
-             'quantity': quantity,
-             'total_price': total_price,
-          }
-    
-        
+            yield {
+                'product': product,
+                'price': price,
+                'quantity': quantity,
+                'total_price': total_price,
+            }
+
     def __len__(self):
         """
         Return total number of items in the cart (sum of quantities).
@@ -79,7 +87,6 @@ class Cart:
         self.session[settings.CART_SESSION_ID] = self.cart
         self.session.modified = True
 
-        
     def remove(self, product):
         """
         Remove a product from the cart.
@@ -100,6 +107,7 @@ class Cart:
     def get_total_price(self):
         """
         Calculate and return the total price of all items in the cart.
+        Skips invalid items silently.
         """
         total = Decimal('0.00')
         for item in self.cart.values():
