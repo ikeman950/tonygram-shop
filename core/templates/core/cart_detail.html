@@ -22,23 +22,55 @@
         </thead>
         <tbody>
           {% for item in cart %}
-            <tr>
-              <td class="fw-medium">{{ item.product.name }}</td>
-              <td class="text-end">GH₵ {{ item.price|floatformat:"-2"|intcomma }}</td>
-              <td class="text-center">
-                <form action="{% url 'cart_add' item.product.id %}" method="post" class="d-flex align-items-center justify-content-center gap-2">
-                  {% csrf_token %}
-                  <input type="hidden" name="override_quantity" value="true">
-                  <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control text-center" style="width: 80px;">
-                  <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
-                </form>
+            <tr {% if not item.product %}class="table-warning"{% endif %}>
+              <td class="fw-medium">
+                {% if item.product %}
+                  {{ item.product.name }}
+                {% else %}
+                  <span class="text-danger fw-bold">Product deleted</span>
+                  <small class="text-muted d-block">This item is no longer available</small>
+                {% endif %}
               </td>
-              <td class="text-end fw-bold">GH₵ {{ item.total_price|floatformat:"-2"|intcomma }}</td>
+
+              <td class="text-end">
+                GH₵ {{ item.price|floatformat:"-2"|intcomma }}
+              </td>
+
               <td class="text-center">
-                <form action="{% url 'cart_remove' item.product.id %}" method="post">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
-                </form>
+                {% if item.product %}
+                  <form action="{% url 'cart_add' item.product.id %}" method="post" class="d-flex align-items-center justify-content-center gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="override_quantity" value="true">
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control text-center" style="width: 80px;">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-arrow-repeat"></i> Update
+                    </button>
+                  </form>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+
+              <td class="text-end fw-bold">
+                GH₵ {{ item.total_price|floatformat:"-2"|intcomma }}
+              </td>
+
+              <td class="text-center">
+                {% if item.product %}
+                  <form action="{% url 'cart_remove' item.product.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i> Remove
+                    </button>
+                  </form>
+                {% else %}
+                  <form action="{% url 'cart_remove' item.product.id|default:0 %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash"></i> Clear
+                    </button>
+                  </form>
+                {% endif %}
               </td>
             </tr>
           {% endfor %}
@@ -49,12 +81,22 @@
     <div class="card mt-4 border-0 shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">Subtotal</h5>
-          <h5 class="mb-0">GH₵ {{ cart.get_total_price|floatformat:"-2"|intcomma }}</h5>
+          <h5 class="mb-0 fw-bold">Subtotal</h5>
+          <h5 class="mb-0 text-success fw-bold">
+            GH₵ {{ cart.get_total_price|floatformat:"-2"|intcomma }}
+          </h5>
         </div>
-        <div class="d-grid">
-          <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg">Proceed to Checkout</a>
-        </div>
+
+        {% if cart.get_total_price > 0 %}
+          <div class="d-grid">
+            <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg">
+              <i class="bi bi-arrow-right-circle me-2"></i> Proceed to Checkout
+            </a>
+          </div>
+        {% else %}
+          <p class="text-center text-muted mb-0">No payable items left in cart</p>
+        {% endif %}
+
         <small class="text-muted d-block text-center mt-3">
           Shipping & payment calculated at checkout
         </small>
@@ -62,7 +104,9 @@
     </div>
 
     <div class="mt-4 text-center">
-      <a href="{% url 'home' %}" class="text-decoration-none">← Continue Shopping</a>
+      <a href="{% url 'home' %}" class="text-decoration-none text-primary">
+        ← Continue Shopping
+      </a>
     </div>
 
   {% else %}
@@ -72,7 +116,9 @@
       </div>
       <h3>Your cart is empty</h3>
       <p class="lead text-muted mb-4">Looks like you haven't added anything yet.</p>
-      <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Start Shopping</a>
+      <a href="{% url 'home' %}" class="btn btn-primary btn-lg">
+        Start Shopping
+      </a>
     </div>
   {% endif %}
 
