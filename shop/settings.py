@@ -148,7 +148,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'isaacnketia950@gmail.com'          # ← your email
-EMAIL_HOST_PASSWORD = 'foxztvotbjyzjcay'         # ← NOT normal password! Use Gmail App Password
+EMAIL_HOST_PASSWORD = 'hllocdlllspcvkjc'         # ← NOT normal password! Use Gmail App Password
 
 # From address (must match your host user usually)
 DEFAULT_FROM_EMAIL = 'TonyGram Trading <isaacnketia950@gmail.com>'
