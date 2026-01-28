@@ -21,40 +21,32 @@ class Cart:
         self.cart = cart
         
         
-
     def __iter__(self):
-        """
-        Iterate over cart items without modifying stored session data.
-        Returns enhanced item dictionaries with product objects and calculated totals.
-        """
-        product_ids = self.cart.keys()
-        products = Product.objects.filter(id__in=product_ids, available=True)
+         product_ids = self.cart.keys()
+         products = Product.objects.filter(id__in=product_ids)  # Remove available=True to include even deleted ones temporarily
 
-        # Work on a copy to prevent any mutation of session data
-        cart_copy = self.cart.copy()
+         cart_copy = self.cart.copy()
 
-        # Attach product objects
         for product in products:
-            pid_str = str(product.id)
-            if pid_str in cart_copy:
-                cart_copy[pid_str]['product'] = product
+           pid_str = str(product.id)
+           if pid_str in cart_copy:
+              cart_copy[pid_str]['product'] = product
 
-        # Yield safe, computed item dictionaries
-        for item in cart_copy.values():
-            try:
-                price = Decimal(item['price'])
-            except (InvalidOperation, TypeError, KeyError):
-                price = Decimal('0.00')
+       for item in cart_copy.values():
+          price = Decimal(item['price']) if 'price' in item else Decimal('0.00')
+          quantity = item.get('quantity', 0)
+          product = item.get('product')  # May be None if deleted
 
-            total_price = price * item.get('quantity', 0)
+          total_price = price * quantity
 
-            yield {
-                'product': item.get('product'),
-                'price': price,
-                'quantity': item.get('quantity', 0),
-                'total_price': total_price,
-            }
-
+          yield {
+             'product': product,  # Can be None
+             'price': price,
+             'quantity': quantity,
+             'total_price': total_price,
+          }
+    
+        
     def __len__(self):
         """
         Return total number of items in the cart (sum of quantities).
