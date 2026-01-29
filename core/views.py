@@ -107,35 +107,6 @@ def checkout(request):
             # Clear cart
             cart.clear()
             
-            # Send emails
-            # 1. To customer
-            customer_subject = f'Order Confirmation - TonyGram Trading #{order.id}'
-            customer_message = render_to_string(
-                'core/order_confirmation_email.txt',
-                {'order': order}
-            )
-            send_mail(
-                customer_subject,
-                customer_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [order.email],   
-                fail_silently=False,
-            )
-            
-            # 2. To admin/shop owner
-            admin_subject = f'New Order Received - #{order.id}'
-            admin_message = render_to_string(
-                'core/new_order_alert_email.txt',
-                {'order': order}
-            )
-            send_mail(
-                admin_subject,
-                admin_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.EMAIL_HOST_USER],  # your email
-                fail_silently=False,
-            )
-            
             request.session['order_id'] = order.id
             return redirect('checkout_success')
     else:
