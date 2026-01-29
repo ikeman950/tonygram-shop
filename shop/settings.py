@@ -112,8 +112,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']  # optional custom static folder
 
 
-
-
 # Media files (user uploads - product images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
